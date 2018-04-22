@@ -15,3 +15,157 @@
 
 > ### RecyclerView工作原理
 > ![image](https://raw.githubusercontent.com/lzjlxebr/Knowledge-reserve-for-my-app/master/images/RecyclerView%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86.png)
+
+> ### RecyclerView使用基本步骤
+> 拓展[RecyclerView.Adapter](https://developer.android.com/reference/android/support/v7/widget/RecyclerView.Adapter.html)抽象类，泛型指定为ViewHolder类型，并覆盖onCreateViewHolder(),onBindViewHolder(),getItemCount()三个基本方法
+```
+public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerView.MyViewHolder> {
+     /*    ViewHolders on screen:
+     *
+     *        *-----------------------------*
+     *        |         ViewHolder index: 0 |
+     *        *-----------------------------*
+     *        |         ViewHolder index: 1 |
+     *        *-----------------------------*
+     *        |         ViewHolder index: 2 |
+     *        *-----------------------------*
+     *        |         ViewHolder index: 3 |
+     *        *-----------------------------*
+     *        |         ViewHolder index: 4 |
+     *        *-----------------------------*
+     *        |         ViewHolder index: 5 |
+     *        *-----------------------------*
+     *        |         ViewHolder index: 6 |
+     *        *-----------------------------*
+     *        |         ViewHolder index: 7 |
+     *        *-----------------------------*
+     *
+     *    Extra ViewHolders (off screen)
+     *
+     *        *-----------------------------*
+     *        |         ViewHolder index: 8 |
+     *        *-----------------------------*
+     *        |         ViewHolder index: 9 |
+     *        *-----------------------------*
+     *        |         ViewHolder index: 10|
+     *        *-----------------------------*
+     *        |         ViewHolder index: 11|
+     *        *-----------------------------*
+     *
+     *    Total number of ViewHolders = 11
+     */
+    private static int viewHolderCount;
+    
+    public MyRecyclerViewAdapter() {
+        this.viewHolderCount = viewHolderCount;
+    }
+
+    @Override
+    public MyRecyclerView.MyViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+        // 被持有的ListItemViewId
+        int itemIdShouldBeHold = R.layout.list_item;
+        // 是否立即与其父视图匹配布局参数
+        boolean shouldAttachToParentImmediately = false;
+        // 在ViewGroup中撑张一个ListItemView
+        View listItemView = LayoutInflate.from(viewGroup.getContext())
+            .inflate(itemIdShouldBeHold, viewGroup, shouldAttachToParentImmediately);
+        //
+        MyViewHolder viewHolder = new MyViewHolder(view);
+        // 将viewHolderIndex赋值
+        viewHolderIndex.setText("ViewHolder index: " + viewHolderCount ++)
+        
+        return viewHolder;
+    }
+    @Override
+    public void onBindViewHolder(MyViewHolder viewHolder, int position) {
+        viewHolder.bind(position);
+    }
+    @Override
+    public int getItemCount() {
+        return 100; // should be a variable
+    }
+  
+    class MyViewHolder extends RecyclerView.ViewHolder {
+        // ViewHolder将持有的ListItemView中的一个TextView，这里用于显示item的编号
+        private TextView listItemView;
+        // ViewHolder将持有的ListItemView中的另一个TextView，这里用于显示ViewHolder的编号
+        private TextVIew viewHolderIndex;
+      
+        public MyViewHolder(View itemView) {
+            super(itemView);
+            listItemView = (TextView) itemView.findViewById(R.id.tv_item_number);
+            viewHolderIndex = (TextView) itemView.findViewById(R.id.tv_view_holder_index);
+        }
+        void bind(int listIndex) {
+            listItemView.setText(String.valueOf(listIndex));
+        }
+    }
+}
+```
+> 以下是对应的xml布局文件
+```
+<!-- activity_main.xml -->
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_numbers"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+</FrameLayout>
+<!-- list_item.xml -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/tv_item_number"
+        style="@style/TextAppearance.AppCompat.Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|start"
+        android:fontFamily="monospace"
+        android:textSize="42sp"
+        tools:text="#42" />
+
+    <TextView
+        android:id="@+id/tv_view_holder_index"
+        style="@style/TextAppearance.AppCompat.Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|end"
+        android:fontFamily="monospace"
+        android:textColor="#000"
+        tools:text="ViewHolder index: 7" />
+</FrameLayout>
+```
+> 最后一步，在Activity中使用LayoutManager将前面的组件整合起来
+```
+...
+private MyRecyclerViewAdapter mAdpter;
+private RecyclerView mNumberList;
+
+@Override
+protected void onCreate(Bundle saveInstanceState) {
+    super.onCreate(saveInstanceState);
+    setContentView(R.layout.activity_main);
+    
+    mNumberList = (RecyclerView) findViewById(R.id.rv_numbers);
+    
+    LayoutManager mManager = new LinearLayoutManager(this);
+    mNumberList.setLayoutManager(mManager);
+    
+    // 提高显示性能
+    mNumberList.setHasFixedSize(true);
+    
+    mAdapter = new MyRecyclerViewAdapter(mNumberList);
+    
+    mNumberList.setAdapter(mAdapter);
+}
+...
+```
+> 到这里使用RecyclerView就完成了，当然还可以进一步新加功能，比如动画，点击效果等等。
