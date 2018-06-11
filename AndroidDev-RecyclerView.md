@@ -169,3 +169,4 @@ protected void onCreate(Bundle saveInstanceState) {
 ...
 ```
 > RecyclerView有个特点，getChildAt()是获取动态的id值，也就意味着，页面中的可见内容是随时被其维护的，不是固定的。
+> RecyclerView的Decoration会一直监听手势，recyclerview的可见内容一旦变化，onDraw或者onDrawOver方法就会一直被调用，也就是会一直绘制视图
