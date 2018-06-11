@@ -168,4 +168,4 @@ protected void onCreate(Bundle saveInstanceState) {
 }
 ...
 ```
-> 到这里使用RecyclerView就完成了，当然还可以进一步新加功能，比如动画，点击效果等等。
+> RecyclerView有个特点，getChildAt()是获取动态的id值，也就意味着，页面中的可见内容是随时被其维护的，不是固定的。
